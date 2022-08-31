@@ -40,6 +40,9 @@ def run(words):
   """
   my_hash = CHash()
   my_store = Store(my_hash)
+
+  modified_hash = ModHash()
+  modified_store = Store(modified_hash)
   
   
   """
@@ -51,15 +54,27 @@ def run(words):
   
   my_store.dump()
   
+  """
+  Add modificated nodes to the store
+  """
+
+  modified_store.add_node("Node 1")
+  modified_store.add_node("Node 2")
+  modified_store.add_node("Node 3")
+
+  modified_store.dump()
+  
 
   """
   Save all words in the Store
   """
   for word in words:
       my_store.add_resource(word)
+      modified_store.add_resource(word)
+  
   
   my_store.dump()
-
+  modified_store.dump()
 
   """
   Remove one node from the Store. Stored objects need to be migrated to the
@@ -68,6 +83,8 @@ def run(words):
   my_store.remove_node("Node 1")
   my_store.dump()
 
+  modified_store.remove_node("Node 1")
+  modified_store.dump()
 
   """
   Add the node back to the Store. Objects need to be migrated to conform to the
@@ -76,11 +93,12 @@ def run(words):
   my_store.add_node("Node 1")
   my_store.dump()
 
-
+  modified_store.add_node("Node 1")
+  modified_store.dump()
 
 if __name__ == '__main__':
 
-  words = read_words('words_alpha.txt')
+  words = read_words('consistent_hash\words_alpha.txt')
   words = words[:100]
 
   run(words)

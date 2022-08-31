@@ -52,14 +52,36 @@ class Store:
         """
         Creates a new node in the datastore. Once the node is created, a number
         of resources have to be migrated to conform to the hash schema.
-
+        
         Important: Notice that this method is designed to work with a
         consistent hash. You may need to adjust it to make it work with modular
         hash. Hash_generator has a member "scheme_name" that you can use.
         """
+        if self.hash_generator.get_name() == 'Modular Hash':
+            moves = 0
+
+            self.hash_generator.add_node(new_node)
+            self.nodes[new_node] = Node(new_node)
+
+            for node_name, node in self.nodes.items():
+                resources_copy = node.resources.copy()
+
+                for element in resources_copy:
+                    target_node = self.hash_generator.hash(element)
+
+                    if target_node is not None and target_node != node_name:
+                        moves += 1
+                        node.resources.remove(element)
+                        self.nodes[target_node].resources.append(element)
+
+            print("Total moves (insertion of new node in " +
+                  self.hash_generator.get_name() + "): " + str(moves))
+            return
+
         prev_node = self.hash_generator.hash(new_node)
 
         rc = self.hash_generator.add_node(new_node)
+        
         if rc == 0:
             self.nodes[new_node] = Node(new_node)
 
@@ -68,6 +90,8 @@ class Store:
             resources stored in that node need to be rebalanced (removed from a
             node and added to another one).
             """
+            moves = 0
+
             if prev_node is not None:
                 resources = self.nodes[prev_node].resources.copy()
 
@@ -75,9 +99,12 @@ class Store:
                     target_node = self.hash_generator.hash(element)
 
                     if target_node is not None and target_node != prev_node:
+                        moves += 1
                         self.nodes[prev_node].resources.remove(element)
                         self.nodes[target_node].resources.append(element)
 
+            print("Total moves (insertion of new node in " +
+                  self.hash_generator.get_name() + "): " + str(moves))
     def remove_node(self, node):
         """
         Removes a node from the datastore. When a node is removed, a number
